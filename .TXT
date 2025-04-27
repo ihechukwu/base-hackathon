@@ -1,0 +1,11 @@
+I created a new frontend project folder called **`loonpay_frontend`**.  
+Inside it, I built a **reusable service module** that handles blockchain interactions.  
+Specifically, the service is responsible for:
+    - Connecting to MetaMask
+    - Requesting user wallet access
+    - Setting up the **signer** (for sending transactions)
+    - Setting up the **provider** (for reading data from the blockchain)
+     - Instantiating and exporting a ready-to-use smart contract instance
+
+This setup allows any part of the frontend app to easily interact with the smart contract by simply importing the service, without duplicating connection logic.
+
