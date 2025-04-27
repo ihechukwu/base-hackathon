@@ -1,0 +1,15 @@
+import { createRouter, createWebHistory } from "vue-router";
+// import { useStore } from "vuex";
+import Home from "../views/Home.vue";
+
+const routes = [
+  { path: "/", name: "Home", component: Home },
+ ];
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.VITE_BASE_URL),
+  routes,
+});
+
+
+export default router;
