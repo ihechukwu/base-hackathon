@@ -11,3 +11,11 @@ button{
     font-family: "Inter", sans-serif;
 
 }
+.backBtn {
+    font-weight: 400;
+    line-height: 100%;
+    letter-spacing: -2%;
+    text-align: center;
+    color: #2B2B2B;
+    text-transform: uppercase;
+}

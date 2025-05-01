@@ -29,7 +29,7 @@
     <!-- Mobile Dropdown -->
     <Transition name="mobile-menu">
     <div v-if="mobileMenuOpen"
-      class="fixed h-full top-0 left-0 right-0 bg-white shadow-md p-4 flex flex-col space-y-4 md:hidden z-50">
+      class="fixed h-full top-0 left-0 right-0 bg-white shadow-md px-4 py-8 flex flex-col space-y-4 md:hidden z-50">
       <div class="flex items-center w-full justify-between">
         <!-- logo -->
         <div class="flex items-center space-x-1">

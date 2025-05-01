@@ -1,27 +1,45 @@
 <template>
     <Navbar />
-
+    <section class="flex w-full flex-col justify-center items-center sm:mt-16 mt-8 sm:px-8 px-4">
+        <div class="w-full sm:w-1/2 md:w-2/5 flex flex-col gap-y-4 items-start">
+            <button @click="router.back()" class="backBtn sm:text-[1rem] text-xs">← Back</button>
+            <div class="w-full bg-[#ffffff] p-4 shadow-2xl rounded-xl mt-4">
+                <div class="w-full bg-[#F9F9F9] p-4 flex flex-col rounded-xl items-start gap-2">
+                    <input type="text" placeholder="Enter Giftcard Code"
+                        class="w-full bg-white border border-[#eeeeee]  rounded-xl" />
+                    <input type="text" placeholder="Enter wallet Address"
+                        class="w-full bg-white border border-[#eeeeee]  rounded-xl" />
+                </div>
+            </div>
+            <button @click="router.push('/swap')"
+                class="bg-[#0F77FF] hover:bg-blue-600 text-white text-sm font-mono px-4 sm:py-3 py-2 rounded-full flex items-center w-full">
+                <span>Continue</span>
+            </button>
+        </div>
+    </section>
 </template>
 <script setup>
+import { useRouter } from 'vue-router'
 import Navbar from '../components/Navbar.vue';
+const router = useRouter();
 </script>
 <style scoped>
-h1 {
-    color: linear-gradient(91.03deg, #6943FF -9.16%, #193DB1 37.33%, #0B1A4B 109.11%);
-    font-weight: 500;
-    line-height: 120%;
-    letter-spacing: -4%;
+.backBtn {
+    font-weight: 400;
+    line-height: 100%;
+    letter-spacing: -2%;
     text-align: center;
-
+    color: #2B2B2B;
+    text-transform: uppercase;
 }
 
-ul li {
+input {
     font-family: "Geist Mono", monospace;
-    color: #8B8B8B;
     font-weight: 500;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 20px;
     letter-spacing: -0.5px;
+    padding: 1rem;
     vertical-align: middle;
 
 }
