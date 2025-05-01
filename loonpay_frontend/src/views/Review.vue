@@ -85,7 +85,7 @@
             </button>
             <div class="w-full items-center flex justify-center">
 
-                <p class="text-[#BD4F55] text-center sm:text-sm text-xs">Confirm the amount, token & recipient before
+                <p class="text-[#BD4F55] font-mono text-center sm:text-sm text-xs">Confirm the amount, token & recipient before
                     sending</p>
             </div>
         </div>
@@ -116,7 +116,7 @@
                             </div>
                             <span
                                 :class="['progress md:text-lg text-xs', status.completed ? 'text-[#7FC161] ' : 'text-[#9B9B9B]']">{{
-                                    status.text }}</span>
+                             status.text }}</span>
                         </div>
                     </div>
 
