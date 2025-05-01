@@ -3,7 +3,7 @@
     <section class="w-full flex items-center flex-col justify-center mt-8 sm:px-8 px-4">
 
         <h1
-            class="bg-gradient-to-r from-purple-600 via-blue-700 to-blue-900 bg-clip-text text-transparent md:text-5xl sm:text-4xl text-3xl ">
+            class="bg-gradient-to-r from-purple-600 via-blue-700 to-blue-900 bg-clip-text text-transparent md:text-5xl sm:text-4xl text-3xl tracking-tight ">
             Instantly Convert your <br />Giftcards to USDC</h1>
         <ul class="flex items-center justify-center gap-3 mt-2">
             <li>Fast</li>
@@ -15,13 +15,8 @@
                 @click="router.push('/enter-giftcard-info')"
                 class="bg-[#0F77FF] hover:bg-blue-600 outline-4 outline-[#86A1C547] text-white text-sm font-mono px-4 py-2 rounded-full flex items-center space-x-1 sm:w-fit w-3/4">
                 <span>Swap Giftcards</span>
-                <img src="../assets/images/connectWallet.svg" alt="wallet" class="w-4 h-4" />
             </button>
-            <button
-                class=" text-[#0F77FF] border-gray-200 border text-sm font-mono px-4 py-2 rounded-full flex items-center space-x-1  sm:w-fit w-3/4">
-                <span>Connect</span>
-                <img src="../assets/images/connectWalletBlue.svg" alt="wallet" class="w-4 h-4" />
-            </button>
+      
         </div>
     </section>
 </template>

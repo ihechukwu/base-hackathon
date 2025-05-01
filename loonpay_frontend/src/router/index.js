@@ -3,11 +3,13 @@ import GiftCardInfo from "../views/GiftCardInfo.vue";
 import Home from "../views/Home.vue";
 import Swap from "../views/Swap.vue";
 import Review from "../views/Review.vue";
+import ConnectWallet from "../views/connectWallet.vue";
 const routes = [
   { path: "/", name: "Home", component: Home },
   { path: "/enter-giftcard-info", name: "GiftCardInfo", component: GiftCardInfo },
   { path: "/swap", name: "Swap", component: Swap },
   { path: "/review-transaction", name: "Review", component: Review },
+  { path: "/connect-wallet", name: "ConnectWallet", component: ConnectWallet },
  ];
 
 const router = createRouter({

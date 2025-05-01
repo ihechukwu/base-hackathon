@@ -2,15 +2,22 @@
     <Navbar />
     <section class="flex w-full flex-col justify-center items-center sm:mt-16 mt-8 sm:px-8 px-4">
         <div class="w-full md:w-1/2  flex flex-col gap-y-4 items-start">
-            <button @click="router.back()" class="backBtn sm:text-[1rem] text-xs">← Back</button>
+            <div class="hidden md:block">
+                <button @click="router.back()" class=" backBtn sm:text-[1rem] text-xs">
+                    ← Back
+                </button>
+            </div>
             <div class="w-full bg-[#ffffff] p-2 shadow-2xl rounded-xl mt-4">
                 <div class="w-full p-4 flex flex-col rounded-xl items-start gap-2">
                     <div class="relative w-full ">
                         <!-- Swap Section -->
-                        <div class="bg-[#f9f9f9] p-4 rounded-t-xl sm:min-h-[172px] h-fit flex flex-col items-start sm:gap-y-2 gap-y-1">
+                        <div
+                            class="bg-[#f9f9f9] p-4 rounded-t-xl sm:min-h-[172px] h-fit flex flex-col items-start sm:gap-y-2 gap-y-1">
                             <div class="flex justify-between items-center w-full ">
-                                    <p class="sm:leading-[20px] tracking-[0.5px] font-medium text-[#B9B9B9] sm:text-[16px] text-xs">Swap</p>
-                                    <div
+                                <p
+                                    class="sm:leading-[20px] tracking-[0.5px] font-medium text-[#B9B9B9] sm:text-[16px] text-xs">
+                                    Swap</p>
+                                <div
                                     class="flex items-center bg-white rounded-full sm:px-4 sm:py-3  px-2 py-1 border text-sm border-[#EEEEEE] gap-x-2">
                                     <!-- <img class="rounded-full"/> -->
                                     🇺🇸
@@ -37,10 +44,13 @@
                         </div>
 
                         <!-- Receive Section -->
-                        <div class="bg-[#f9f9f9] p-4 rounded-b-xl sm:min-h-[172px] h-fit flex flex-col items-start sm:gap-y-2 gap-y-1 mt-4">
+                        <div
+                            class="bg-[#f9f9f9] p-4 rounded-b-xl sm:min-h-[172px] h-fit flex flex-col items-start sm:gap-y-2 gap-y-1 mt-4">
                             <div class="flex justify-between items-center w-full ">
-                                    <p class="sm:leading-[20px] tracking-[0.5px] font-medium text-[#B9B9B9] sm:text-[16px] text-xs">Receive</p>
-                                    <div
+                                <p
+                                    class="sm:leading-[20px] tracking-[0.5px] font-medium text-[#B9B9B9] sm:text-[16px] text-xs">
+                                    Receive</p>
+                                <div
                                     class="flex items-center bg-white rounded-full sm:px-4 sm:py-3  px-2 py-1 border text-sm border-[#EEEEEE] gap-x-2">
                                     <!-- <img class="rounded-full"/> -->
                                     🇺🇸
@@ -84,6 +94,7 @@ const router = useRouter();
     line-height: 20px;
     letter-spacing: -0.5px;
     color: #9B9B9B;
+
     @media (max-width:640px) {
         font-size: 12px;
 

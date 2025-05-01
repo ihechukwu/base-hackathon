@@ -2,8 +2,11 @@
     <Navbar />
     <section class="flex w-full flex-col justify-center items-center sm:mt-16 mt-8 sm:px-8 px-4">
         <div class="w-full sm:w-1/2 md:w-2/5 flex flex-col gap-y-4 items-start">
-            <button @click="router.back()" class="backBtn sm:text-[1rem] text-xs">← Back</button>
-            <div class="w-full bg-[#ffffff] p-4 shadow-2xl rounded-xl mt-4">
+            <div class="hidden md:block">
+                <button @click="router.back()" class=" backBtn sm:text-[1rem] text-xs">
+                    ← Back
+                </button>
+            </div>            <div class="w-full bg-[#ffffff] p-4 shadow-2xl rounded-xl mt-4">
                 <div class="w-full bg-[#F9F9F9] p-4 flex flex-col rounded-xl items-start gap-2">
                     <input type="text" placeholder="Enter Giftcard Code"
                         class="w-full bg-white border border-[#eeeeee]  rounded-xl" />
@@ -24,15 +27,6 @@ import Navbar from '../components/Navbar.vue';
 const router = useRouter();
 </script>
 <style scoped>
-.backBtn {
-    font-weight: 400;
-    line-height: 100%;
-    letter-spacing: -2%;
-    text-align: center;
-    color: #2B2B2B;
-    text-transform: uppercase;
-}
-
 input {
     font-family: "Geist Mono", monospace;
     font-weight: 500;
