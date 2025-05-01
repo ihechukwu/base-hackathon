@@ -1,5 +1,53 @@
 <template>
-<div>Hello</div>
+    <Navbar />
+    <section class="w-full flex items-center flex-col justify-center mt-8 sm:px-8 px-4">
+
+        <h1
+            class="bg-gradient-to-r from-purple-600 via-blue-700 to-blue-900 bg-clip-text text-transparent md:text-5xl sm:text-4xl text-3xl ">
+            Instantly Convert your <br />Giftcards to USDC</h1>
+        <ul class="flex items-center justify-center gap-3 mt-2">
+            <li>Fast</li>
+            <li>• Easy</li>
+            <li>• Secure</li>
+        </ul>
+        <div class="flex md:flex-row flex-col gap-4 sm:mt-4 mt-12 w-full items-center justify-center">
+            <button
+                @click="router.push('/enter-giftcard-info')"
+                class="bg-[#0F77FF] hover:bg-blue-600 outline-4 outline-[#86A1C547] text-white text-sm font-mono px-4 py-2 rounded-full flex items-center space-x-1 sm:w-fit w-3/4">
+                <span>Swap Giftcards</span>
+                <img src="../assets/images/connectWallet.svg" alt="wallet" class="w-4 h-4" />
+            </button>
+            <button
+                class=" text-[#0F77FF] border-gray-200 border text-sm font-mono px-4 py-2 rounded-full flex items-center space-x-1  sm:w-fit w-3/4">
+                <span>Connect</span>
+                <img src="../assets/images/connectWalletBlue.svg" alt="wallet" class="w-4 h-4" />
+            </button>
+        </div>
+    </section>
 </template>
 <script setup>
+import {useRouter} from 'vue-router'
+import Navbar from '../components/Navbar.vue';
+const router = useRouter();
 </script>
+<style scoped>
+h1 {
+    color: linear-gradient(91.03deg, #6943FF -9.16%, #193DB1 37.33%, #0B1A4B 109.11%);
+    font-weight: 500;
+    line-height: 120%;
+    letter-spacing: -4%;
+    text-align: center;
+
+}
+
+ul li {
+    font-family: "Geist Mono", monospace;
+    color: #8B8B8B;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 20px;
+    letter-spacing: -0.5px;
+    vertical-align: middle;
+
+}
+</style>
