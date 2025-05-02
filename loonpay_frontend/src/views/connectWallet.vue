@@ -1,11 +1,13 @@
 <template>
-    <div class="w-full h-full mirrored">
-        <Navbar />
+    <div class="w-full h-full mirrored relative">
+        <!-- <div class="absolute top-0 left-0 w-full h-full backdrop-blur-2xl">
+        </div> -->
+    <Home/>
     </div>
     <section v-if="!showWalletList"
         class="fixed top-0 flex flex-col h-full w-full items-center justify-center sm:p-8 p-4">
         <div
-            class="w-full lg:w-1/2 xl:w-2/5 shadow-lg p-4 rounded-3xl backdrop-blur-2xl flex flex-col gap-y-4 items-start">
+            class="w-full lg:w-1/2 xl:w-2/5 shadow-lg p-4 rounded-3xl bg-white  flex flex-col gap-y-4 items-start">
 
             <div class="w-full p-4 flex flex-col rounded-xl items-center justify-center sm:gap-2 gap-1">
                 <h1 class="sm:leading-[20px] tracking-[0.5px] text-[#2B2B2B] sm:text-[24px] text-sm font-[600] text-center">
@@ -70,8 +72,8 @@
 </template>
 <script setup>
 import { useRouter } from "vue-router";
-import Navbar from "../components/Navbar.vue";
 import { ref } from "vue";
+import Home from "./Home.vue";
 const router = useRouter();
 const showWalletList = ref(false)
 

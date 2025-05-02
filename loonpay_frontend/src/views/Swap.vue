@@ -1,5 +1,4 @@
 <template>
-    <Navbar />
     <section class="flex w-full flex-col justify-center items-center sm:mt-16 mt-8 sm:px-8 px-4">
         <div class="w-full md:w-1/2  flex flex-col gap-y-4 items-start">
             <div class="hidden md:block">

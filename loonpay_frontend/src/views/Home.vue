@@ -1,6 +1,6 @@
 <template>
-    <Navbar />
-    <section class="w-full flex items-center flex-col justify-center mt-8 sm:px-8 px-4">
+    <!-- <Navbar /> -->
+    <section class="w-full flex items-center flex-col justify-center mt-8 sm:mt-0 sm:px-8 px-4">
 
         <h1
             class="bg-gradient-to-r from-purple-600 via-blue-700 to-blue-900 bg-clip-text text-transparent md:text-5xl sm:text-4xl text-3xl tracking-tight ">
