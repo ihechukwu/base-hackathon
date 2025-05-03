@@ -17,7 +17,7 @@
             <span>Swap Giftcards</span>
         </button>
         <button
-            @click="router.push('/enter-giftcard-info')"
+            @click="connectToWallet();"
             class="text-[#0F77FF] hover:text-blue-600 border border-[#eee] bg-white text-sm font-mono px-4 py-2 rounded-full sm:!hidden flex items-center space-x-1 sm:w-fit w-3/4">
             <span>Connect</span>
             <img src="../assets/images/connectWalletBlue.svg" alt="">
@@ -27,9 +27,22 @@
     </section>
 </template>
 <script setup>
+import { ref } from 'vue';
 import {useRouter} from 'vue-router'
-import Navbar from '../components/Navbar.vue';
+import SwapCard from '../service/swapCard'
 const router = useRouter();
+const accountAddress = ref(null)
+const connectToWallet = async ()=>{
+    try {
+        const signer = await SwapCard.getProviderOrSigner(); // ✅ Use correct name
+        const address = await signer.getAddress();
+        accountAddress.value = address;
+        console.log("Connected:", address);
+        // toast connected successfully
+      } catch (error) {
+        console.error("MetaMask connection failed:", error.message);
+      }
+}
 </script>
 <style scoped>
 h1 {

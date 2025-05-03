@@ -1,6 +1,6 @@
 
 import { ethers } from "ethers";
-import Counter from "@/abi/Counter.json"; // import your ABI properly
+// import Counter from "@/abi/Counter.json"; // import your ABI properly
 
 let contractInstance = null;
 
@@ -24,6 +24,7 @@ async function getProviderOrSigner() {
   if (!(await hasSigners()) && !(await requestAccess())) {
     throw new Error("User denied account access");
   }
+console.log(ethers);
 
   const provider = new ethers.providers.Web3Provider(metamask);
   return provider.getSigner();
@@ -35,7 +36,7 @@ async function getContractInstance() {
   const signer = await getProviderOrSigner();
   const address = import.meta.env.VITE_CONTRACT_ADDRESS; // Vite uses VITE_ prefix for env vars!
 
-  contractInstance = new ethers.Contract(address, Counter.abi, signer);
+  contractInstance = new ethers.Contract(address, {/* pass in abi */}, signer);
   return contractInstance;
 }
 
@@ -46,5 +47,6 @@ async function currentChain() {
 
 export default {
   getContractInstance,
-  currentChain
+  currentChain,
+  getProviderOrSigner
 };
