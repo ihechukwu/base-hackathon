@@ -1,5 +1,7 @@
 
 import { ethers } from "ethers";
+import { BrowserProvider, Contract } from "ethers";
+
 // import Counter from "@/abi/Counter.json"; // import your ABI properly
 
 let contractInstance = null;
@@ -26,8 +28,8 @@ async function getProviderOrSigner() {
   }
 console.log(ethers);
 
-  const provider = new ethers.providers.Web3Provider(metamask);
-  return provider.getSigner();
+const provider = new BrowserProvider(metamask); // ✅ ethers v6 style
+return provider.getSigner();
 }
 
 async function getContractInstance() {
