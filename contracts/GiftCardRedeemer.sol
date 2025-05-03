@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 contract GiftCardRedeemer {
     // address of the owenr of contract
     error GiftCardRedeemer__zeroBalance();
@@ -10,6 +12,7 @@ contract GiftCardRedeemer {
     error GiftCardRedeemer__pausedWithdrawal();
     address public owner;
     bool private pause;
+    IERC20 public usdc;
 
     // a User type to hold the amount an d also the registration status of each user
     struct User {
@@ -21,6 +24,8 @@ contract GiftCardRedeemer {
     mapping(address => User) public users;
     address[] public userList;
     event UserRegistered(address indexed user);
+    event Redeemed(address indexed user, uint amount);
+    event Withdrawn(address indexed user, uint amount);
     modifier onlyRegistered() {
         require(users[msg.sender].exists, "register first");
         _;
@@ -39,9 +44,10 @@ contract GiftCardRedeemer {
     }
 
     // deployer of contract owns the contract
-    constructor() {
+    constructor(address _usdc) {
         owner = msg.sender;
         pause = false;
+        usdc = IERC20(_usdc);
     }
 
     function register() external {
@@ -57,6 +63,8 @@ contract GiftCardRedeemer {
             revert GiftCardRedeemer__zeroBalance();
         }
         users[msg.sender].balance += _amount;
+
+        emit Redeemed(msg.sender, _amount);
     }
 
     function withdraw() external onlyRegistered isPaused {
@@ -65,8 +73,10 @@ contract GiftCardRedeemer {
         }
         uint amount = users[msg.sender].balance;
         users[msg.sender].balance = 0;
-        (bool success, ) = payable(msg.sender).call{value: amount}("");
-        require(success, "Ether transfer failed");
+        bool success = usdc.transfer(msg.sender, amount);
+        require(success, "usdc transfer failed");
+
+        emit Withdrawn(msg.sender, amount);
     }
 
     function pauseWithdraw() external {
