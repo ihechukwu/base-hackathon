@@ -1,5 +1,5 @@
 <template>
-  <div v-if="route.name !== 'connect-wallet'" :style="backgroundStyle" class="hero-background bg-white">
+  <div v-if="route.path !== '/connect-wallet'" :style="backgroundStyle" class="hero-background bg-white">
     <Navbar />
     <slot></slot>
   </div>
