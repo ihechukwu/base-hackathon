@@ -10,3 +10,6 @@ Specifically, the service is responsible for:
 This setup allows any part of the frontend app to easily interact with the smart contract by simply importing the service, without duplicating connection logic.
 
 PS: does npx hardhat node command work for you?
+I normally use yarn 
+so you can install it 
+and just run "yarn add"
