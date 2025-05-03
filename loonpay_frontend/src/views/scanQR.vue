@@ -1,6 +1,18 @@
 <template>
-    <section class="bg-white fixed top-0 h-full w-full sm:p-8 p-4">
-        <div class="flex justify-center items-center h-full w-full">
+    <section class="bg-white fixed top-0 h-full w-full sm:p-8 p-4 overflow-hidden ">
+
+        <!-- Blurred Background Section -->
+        <div class="absolute inset-0 z-0" v-if="!showEstimatedScreen">
+            <div class="w-full h-full relative flex items-center justify-center filter blur-md">
+                <img class="absolute top-10" src="../assets/images/logoText.svg" alt="">
+                <button
+                    class="absolute sm:hidden flex sm:bottom-20 bottom-40 sm:w-2/5 w-full bg-blue-500 text-white p-4 rounded-2xl">
+                    Hello world
+                </button>
+            </div>
+        </div>
+        <Navbar v-else/>
+        <div class="flex justify-center items-center h-full w-full main">
             <div v-if="!showEstimatedScreen"
                 class="w-full lg:w-2/5 bg-white md:w-1/2 shadow-lg p-6 rounded-3xl backdrop-blur-2xl flex flex-col gap-y-6 items-center">
 
@@ -70,6 +82,7 @@
 <script setup>
 import EstimatedScreen from '../components/EstimatedScreen.vue'
 import { ref, onBeforeUnmount } from 'vue';
+import Navbar from '../components/Navbar.vue';
 const showVerify = ref(false)
 const agree = ref(false)
 
