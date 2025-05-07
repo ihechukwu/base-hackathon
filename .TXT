@@ -13,3 +13,6 @@ PS: does npx hardhat node command work for you?
 I normally use yarn 
 so you can install it 
 and just run "yarn add"
+ 
+ check the services
+ I added an auto user registration function

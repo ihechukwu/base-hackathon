@@ -58,7 +58,7 @@ contract GiftCardRedeemer {
         emit UserRegistered(msg.sender);
     }
 
-    function redeem(uint _amount) external onlyRegistered {
+    function redeem(uint _amount) internal onlyRegistered {
         if (_amount <= 0) {
             revert GiftCardRedeemer__zeroBalance();
         }
