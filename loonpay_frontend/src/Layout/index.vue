@@ -1,11 +1,17 @@
 <template>
-  <div v-if="route.path !== '/connect-wallet'" :style="backgroundStyle" class="hero-background bg-white">
+    <div v-if="route.path !== '/connect-wallet'" class="sm:px-8 p-0" >
+
     <Navbar />
-    <slot></slot>
+    <div :style="backgroundStyle" class="hero-background  min-h-fit
+  sm:h-[75vh] h-screen bg-white sm:rounded-2xl rounded-none pb-4  flex flex-col">
+      <slot/>
+    </div>
     <footer v-if="
       currentRouteName !== 'Home' ||
       (currentRouteName === 'Home' && !isMobile)
-    " class="absolute w-full bottom-0 flex items-center p-2 justify-center" :class="[isMobile ? '' : 'bg-white p-4']">
+    " 
+  class="w-full flex items-center justify-center p-2"
+  :class="[isMobile ? '' : 'bg-white p-4']">
     <div class="md:w-3/4 w-full flex md:flex-row flex-col items-center justify-between gap-2">
 
       <p>©2025 Loonpay. All Rights Reserved.</p>
@@ -146,7 +152,6 @@ const backgroundStyle = computed(() => {
 
 <style>
 .hero-background {
-  height: 100vh;
   background-size: cover;
   background-repeat: no-repeat;
 }

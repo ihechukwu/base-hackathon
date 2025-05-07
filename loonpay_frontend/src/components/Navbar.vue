@@ -1,16 +1,15 @@
 <template>
   <header class="w-full flex items-center justify-between sm:p-[3rem] p-[2rem]">
     <!-- Logo -->
-     <div class="block md:hidden" v-if="route.path !== '/'">
-       <button @click="goBack()"
-         >
-         <svg width="6" height="12" viewBox="0 0 6 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-           <path fill-rule="evenodd" clip-rule="evenodd"
-             d="M5.3254 0.953877C5.53506 1.13359 5.55934 1.44924 5.37963 1.6589L1.65854 6.00017L5.37963 10.3414C5.55934 10.5511 5.53506 10.8668 5.3254 11.0465C5.11573 11.2262 4.80008 11.2019 4.62037 10.9922L0.620372 6.32557C0.459876 6.13832 0.459876 5.86202 0.620372 5.67478L4.62037 1.00811C4.80008 0.798447 5.11573 0.774166 5.3254 0.953877Z"
-             fill="#9B9B9B" />
-         </svg>
-       </button>
-     </div>
+    <div class="block md:hidden" v-if="route.path !== '/'">
+      <button @click="goBack()">
+        <svg width="6" height="12" viewBox="0 0 6 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" clip-rule="evenodd"
+            d="M5.3254 0.953877C5.53506 1.13359 5.55934 1.44924 5.37963 1.6589L1.65854 6.00017L5.37963 10.3414C5.55934 10.5511 5.53506 10.8668 5.3254 11.0465C5.11573 11.2262 4.80008 11.2019 4.62037 10.9922L0.620372 6.32557C0.459876 6.13832 0.459876 5.86202 0.620372 5.67478L4.62037 1.00811C4.80008 0.798447 5.11573 0.774166 5.3254 0.953877Z"
+            fill="#9B9B9B" />
+        </svg>
+      </button>
+    </div>
     <button @click="router.push('/')" class="flex items-center space-x-2">
       <img src="../assets/images/logoImage.svg" alt="Loonpay" class="h-6 w-auto" />
       <img src="../assets/images/logoText.svg" alt="Loonpay" class="sm:h-6 h-4 w-auto" />
@@ -53,15 +52,22 @@
         </div>
         <section class="mt-6 flex flex-col items-start gap-4 w-full">
 
-          <a href="#swap" class="text-sm text-[#368DFF] font-medium">Swap</a>
-          <a href="#swap" class="text-sm text-[#9B9B9B] font-medium ">Transactions</a>
-          <a href="#swap" class="text-sm text-[#9B9B9B] font-medium flex items-center space-x-1">
+          <button class="text-sm hover:text-[#368DFF] text-[#9B9B9B] font-medium"
+            @click="router.push('/enter-giftcard-info'); mobileMenuOpen = false">Swap</button>
+          <div class="relative group inline-block">
+            <button disabled class="text-sm text-[#ccc] hover:text-[#368DFF] font-medium ">Transactions</button>
+            <div
+              class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-3 py-1 bg-gray-600 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+              Disabled feature
+            </div>
+          </div>
+          <button class="text-sm text-[#9B9B9B] hover:text-[#368DFF] font-medium flex items-center space-x-1">
             <span>
               Connect
             </span>
             <img src="../assets/images/connectWalletAsh.svg" alt="wallet" class="w-4 h-4" />
 
-          </a>
+          </button>
 
         </section>
       </div>
@@ -75,8 +81,8 @@ import { useRouter, useRoute } from 'vue-router';
 const router = useRouter();
 const route = useRoute();
 const mobileMenuOpen = ref(false)
-const goBack=()=>{
-  if(route.path ==='/review-transaction')router.push('/')
+const goBack = () => {
+  if (route.path === '/review-transaction') router.push('/')
   else router.back()
 }
 </script>

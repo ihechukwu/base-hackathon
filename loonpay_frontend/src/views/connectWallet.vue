@@ -31,13 +31,15 @@
                 </div>
 
             </div>
+            <div class="w-full flex items-center justify-center">
 
-            <button @click="showWalletList = true"
-                class="bg-[#0F77FF] hover:bg-blue-600 text-white text-sm font-mono px-4 py-3  rounded-full flex items-center w-full space-x-2">
-                <span>Connect</span>
-                <img src="../assets/images/connectWallet.svg" alt="wallet" class="w-4 h-4" />
+                <button @click="showWalletList = true"
+                    class="bg-[#0F77FF] hover:bg-blue-600 text-white text-sm font-mono px-4 py-3  rounded-full flex items-center w-full space-x-2">
+                    <span>Connect</span>
+                    <img src="../assets/images/connectWallet.svg" alt="wallet" class="w-4 h-4" />
 
-            </button>
+                </button>
+            </div>
         </div>
 
     </section>
