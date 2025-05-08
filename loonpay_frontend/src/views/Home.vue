@@ -17,7 +17,7 @@
             <span>Swap Giftcards</span>
         </button>
         <button
-        :disabled="!accountAddress"
+        :disabled="accountAddress"
             @click="connectToWallet();"
             class="text-[#0F77FF] hover:text-blue-600 border border-[#eee] bg-white text-sm font-mono px-4 py-2 rounded-full sm:!hidden flex items-center space-x-1 sm:w-fit w-3/4">
             <span v-if="!accountAddress">Connect</span>
