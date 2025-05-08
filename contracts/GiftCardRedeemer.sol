@@ -1,93 +1,102 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/pausable.sol";
 
-contract GiftCardRedeemer {
-    // address of the owenr of contract
-    error GiftCardRedeemer__zeroBalance();
-    error GiftCardRedeemer__insufficientFunds();
-    error GiftCardRedeemer__userAlreadyExists();
-    error GiftCardRedeemer__notOwner();
-    error GiftCardRedeemer__pausedWithdrawal();
-    address public owner;
-    bool private pause;
-    IERC20 public usdc;
+/**
+ * @title USDC Gift Card Redeemer
+ * @notice Allows users to register and claim USDC tokens
+ * @dev Uses SafeERC20 for secure transfers, ReentrancyGuard for protection
+ */
+contract GiftCardRedeemer is ReentrancyGuard, ownable, pausable{
+    using SafeERC20 for IERC20;
 
-    // a User type to hold the amount an d also the registration status of each user
-    struct User {
-        bool exists;
-        uint balance;
-    }
+    IERC20 public immutable usdcToken;
+    uint256 public constant MIN_AMOUNT = 1 * 10 ** 6; // 1 USDC (6 decimals)
 
-    // each address is associated with an amount and also registration status
-    mapping(address => User) public users;
-    address[] public userList;
+    mapping(address => bool) public registeredUsers;
+    address[] public allUsers;
+    uint256 public totalDistributed;
+
     event UserRegistered(address indexed user);
-    event Redeemed(address indexed user, uint amount);
-    event Withdrawn(address indexed user, uint amount);
-    modifier onlyRegistered() {
-        require(users[msg.sender].exists, "register first");
-        _;
-    }
-    modifier isPaused() {
-        if (pause) {
-            revert GiftCardRedeemer__pausedWithdrawal();
-        }
-        _;
-    }
-    modifier onlyOwner() {
-        if (msg.sender != owner) {
-            revert GiftCardRedeemer__notOwner();
-        }
-        _;
+    event FundsClaimed(address indexed user, uint256 amount);
+    event EmergencyWithdraw(address indexed token, uint256 amount);
+
+    error AlreadyRegistered();
+    error ZeroAmount();
+    error InsufficientContractBalance();
+    error TransferFailed();
+
+    constructor(address _usdcToken) {
+        require(_usdcToken != address(0), "Zero token address");
+        usdcToken = IERC20(_usdcToken);
     }
 
-    // deployer of contract owns the contract
-    constructor(address _usdc) {
-        owner = msg.sender;
-        pause = false;
-        usdc = IERC20(_usdc);
-    }
+    /**
+     * @notice Register user's wallet address
+     * @dev Can only register once per address
+     */
+    function register() external whenNotPaused{
+        if (registeredUsers[msg.sender]) revert AlreadyRegistered();
 
-    function register() external {
-        require(!users[msg.sender].exists, "user exists");
+        registeredUsers[msg.sender] = true;
+        allUsers.push(msg.sender);
 
-        users[msg.sender] = User({exists: true, balance: 0});
-        userList.push(msg.sender);
         emit UserRegistered(msg.sender);
     }
 
-    function redeem(uint _amount) internal onlyRegistered {
-        if (_amount <= 0) {
-            revert GiftCardRedeemer__zeroBalance();
-        }
-        users[msg.sender].balance += _amount;
+    /**
+     * @notice Claim USDC tokens
+     * @param amount Amount to claim (in USDC decimals)
+     * @dev Non-reentrant, requires registration
+     */
+    function claimTokens(uint256 amount) external nonReentrant whenNotPaused{
+        if (!registeredUsers[msg.sender]) revert("Not registered");
+        if (amount < MIN_AMOUNT) revert ZeroAmount();
+        if (usdcToken.balanceOf(address(this)) < amount)
 
-        emit Redeemed(msg.sender, _amount);
+            revert InsufficientContractBalance();
+
+        totalDistributed += amount;
+
+        bool success = usdcToken.transfer(msg.sender, amount);
+        if (!success) revert TransferFailed();
+
+        emit FundsClaimed(msg.sender, amount);
     }
 
-    function withdraw() external onlyRegistered isPaused {
-        if (users[msg.sender].balance == 0) {
-            revert GiftCardRedeemer__insufficientFunds();
-        }
-        uint amount = users[msg.sender].balance;
-        users[msg.sender].balance = 0;
-        bool success = usdc.transfer(msg.sender, amount);
-        require(success, "usdc transfer failed");
-
-        emit Withdrawn(msg.sender, amount);
+    function _validateClaim(uint amount) private view {
+        if(!registeredUsers[msg.sender]) revert ("Not registered");
+        if (amount <MIN_AMOUNT) revert ZeroAmount();
     }
 
-    function pauseWithdraw() external {
-        pause = true;
+    /**
+     * @notice Get total registered users
+     */
+    function totalUsers() external view returns (uint256) {
+        return allUsers.length;
     }
 
-    function resumeWithdraw() external {
-        pause = false;
+    /**
+     * @notice Emergency withdraw tokens (owner only)
+     * @param token Token address to withdraw
+     * @param amount Amount to withdraw
+     */
+    function emergencyWithdraw(
+        address token,
+        uint256 amount
+    ) external onlyOwner {
+        IERC20(token).safeTransfer(owner(), amount);
+        emit EmergencyWithdraw(token, amount);
     }
 
-    function getBalance() public view returns (uint) {
-        return users[msg.sender].balance;
+    /**
+     * @notice Check contract's USDC balance
+     */
+    function contractBalance() external view returns (uint256) onlyOwner{
+        return usdcToken.balanceOf(address(this));
     }
 }
