@@ -62,10 +62,13 @@
                     </div>
                 </div>
             </div>
+            <div class="w-full flex items-center justify-center">
+
             <button @click="router.push('/review-transaction')"
                 class="bg-[#0F77FF] hover:bg-blue-600 text-white text-sm font-mono px-4 sm:py-3 py-2 rounded-full flex items-center w-full">
                 <span>Review</span>
             </button>
+            </div>
         </div>
     </section>
 </template>

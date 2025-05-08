@@ -17,13 +17,14 @@
 
     <!-- Desktop Navigation -->
     <nav class="hidden md:flex items-center space-x-6">
-      <button
+      <button @click="router.push('/enter-giftcard-info')"
         class="bg-[#E3EFFF] hover:bg-blue-300 text-[#193DB1] text-sm font-mono px-8 py-2 rounded-full flex items-center space-x-1">
         Swap
       </button>
-      <button
+      <button :disabled="accountAddress" @click="connectToWallet();"
         class="bg-[#0F77FF] hover:bg-blue-600 text-white text-sm font-mono px-4 py-2 rounded-full flex items-center space-x-1">
-        <span>Connect</span>
+        <span v-if="!accountAddress">Connect</span>
+        <span v-else>Connected</span>
         <img src="../assets/images/connectWallet.svg" alt="wallet" class="w-4 h-4" />
       </button>
     </nav>
@@ -61,10 +62,9 @@
               Disabled feature
             </div>
           </div>
-          <button class="text-sm text-[#9B9B9B] hover:text-[#368DFF] font-medium flex items-center space-x-1">
-            <span>
-              Connect
-            </span>
+          <button :disabled="accountAddress" class="text-sm text-[#9B9B9B] hover:text-[#368DFF] font-medium flex items-center space-x-1">
+            <span v-if="!accountAddress">Connect</span>
+            <span v-else>Connected</span>
             <img src="../assets/images/connectWalletAsh.svg" alt="wallet" class="w-4 h-4" />
 
           </button>
@@ -78,14 +78,29 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router';
+import SwapCard from '../service/swapCard';
+import { useToast } from '../composables/useToast'
+const { showToast } = useToast()
 const router = useRouter();
 const route = useRoute();
-const mobileMenuOpen = ref(false)
+const mobileMenuOpen = ref(false);
+const accountAddress = ref(sessionStorage.getItem('walletAddress') || null)
 const goBack = () => {
   if (route.path === '/review-transaction') router.push('/')
   else router.back()
+};
+const connectToWallet = async ()=>{
+    try {
+        const signer = await SwapCard.getProviderOrSigner(); 
+        const address = await signer.getAddress();
+        accountAddress.value = address;
+        sessionStorage.setItem('walletAddress', address)
+        showToast(`Connected!`, 'success')
+      } catch (error) {
+        showToast(error.message, 'error')      }
 }
 </script>
+
 <style scoped>
 .mobile-menu-enter-active,
 .mobile-menu-leave-active {

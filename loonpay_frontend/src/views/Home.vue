@@ -31,18 +31,20 @@
 <script setup>
 import { ref } from 'vue';
 import {useRouter} from 'vue-router'
+import { useToast } from '../composables/useToast'
 import SwapCard from '../service/swapCard'
+const { showToast } = useToast()
 const router = useRouter();
-const accountAddress = ref(null)
+const accountAddress = ref(sessionStorage.getItem('walletAddress') || null)
 const connectToWallet = async ()=>{
     try {
         const signer = await SwapCard.getProviderOrSigner(); // ✅ Use correct name
         const address = await signer.getAddress();
         accountAddress.value = address;
-        console.log("Connected:", address);
-        // toast connected successfully
-      } catch (error) {
-        console.error("MetaMask connection failed:", error.message);
+        sessionStorage.setItem('walletAddress', address)
+        showToast(`Connected!`, 'success')
+    } catch (error) {
+        showToast(error.message, 'error')
       }
 }
 </script>

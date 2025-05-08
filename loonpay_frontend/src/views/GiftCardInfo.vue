@@ -5,25 +5,32 @@
                 <button @click="router.back()" class=" backBtn sm:text-[1rem] text-xs">
                     ← Back
                 </button>
-            </div>            <div class="w-full bg-[#ffffff] p-4 shadow-2xl rounded-xl mt-4">
-                <div class="w-full bg-[#F9F9F9] p-4 flex flex-col rounded-xl items-start gap-2">
-                    <input type="text" placeholder="Enter Giftcard Code"
-                        class="w-full bg-white border border-[#eeeeee]  rounded-xl" />
-                    <input type="text" placeholder="Enter wallet Address"
-                        class="w-full bg-white border border-[#eeeeee]  rounded-xl" />
-                </div>
             </div>
-            <button @click="router.push('/swap')"
-                class="bg-[#0F77FF] hover:bg-blue-600 text-white text-sm font-mono px-4 sm:py-3 py-2 rounded-full flex items-center w-full">
-                <span>Continue</span>
-            </button>
+            <form @submit.prevent="router.push('/swap')" class="w-full min-h-fit flex flex-col gap-5">
+
+                <div class="w-full bg-[#ffffff] p-4 shadow-2xl rounded-xl mt-4">
+                    <div class="w-full bg-[#F9F9F9] p-4 flex flex-col rounded-xl items-start gap-2">
+                        <input required type="text" placeholder="Enter Giftcard Code" v-model="giftcard"
+                            class="w-full bg-white border border-[#eeeeee] focus:border-b-blue-500 outline-blue-500 rounded-xl" />
+                    </div>
+                </div>
+                <div class="w-full flex items-center justify-center">
+    
+                <button  
+                    class="bg-[#0F77FF] hover:bg-blue-600 text-white text-sm font-mono px-4 sm:py-3 py-2 rounded-full flex items-center w-full">
+                    <span>Continue</span>
+                </button>
+                </div>
+            </form>
         </div>
     </section>
 </template>
 <script setup>
 import { useRouter } from 'vue-router'
 import Navbar from '../components/Navbar.vue';
+import { ref } from 'vue';
 const router = useRouter();
+const giftcard = ref("");
 </script>
 <style scoped>
 input {

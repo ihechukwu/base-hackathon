@@ -1,7 +1,7 @@
 <template>
-    <div class="w-full md:w-1/2 flex flex-col gap-y-4 items-start">
+    <div class="w-full md:w-1/2 flex flex-col gap-y-4 items-start z-30">
       <div class="hidden md:block">
-        <button @click="$router.push('/')" class="backBtn sm:text-[1rem] text-xs">← Homepage</button>
+        <button @click="router.push('/')" class="backBtn sm:text-[1rem] text-xs">← Homepage</button>
       </div>
       <div class="w-full bg-white rounded-2xl shadow-2xl p-2">
         <div class="w-full bg-[#F9F9F9] rounded-2xl p-6">
@@ -49,6 +49,8 @@
   </template>
   
   <script setup>
+  import {useRouter} from 'vue-router';
+  const router = useRouter();
   defineProps({
     remainingTime: Number,
     statusItems: Array

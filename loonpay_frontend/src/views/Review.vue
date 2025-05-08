@@ -78,10 +78,13 @@
 
                 </div>
             </div>
+            <div class="w-full flex items-center justify-center">
+
             <button @click="send()"
                 class="bg-[#0F77FF] hover:bg-blue-600 text-white text-sm font-mono px-4 sm:py-3 py-2 rounded-full flex items-center w-full">
                 <span>Send</span>
             </button>
+            </div>
             <div class="w-full items-center flex justify-center">
 
                 <p class="text-[#BD4F55] font-mono text-center sm:text-sm text-xs">Confirm the amount, token & recipient
@@ -110,10 +113,10 @@ const statusItems = ref([
 const currentStatusIndex = ref(-1);
 let statusInterval = null;
 
-const connectedToWallet = ref(false)
+const connectedToWallet = ref(sessionStorage.getItem('walletAddress') || false)
 const showEstimatedScreen = ref(false)
 const send = () => {
-    if (connectedToWallet.value) {
+    if (!connectedToWallet.value) {
         showEstimatedScreen.value = true
         startStatusProgress();
 

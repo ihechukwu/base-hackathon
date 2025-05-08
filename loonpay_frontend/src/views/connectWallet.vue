@@ -57,7 +57,7 @@
                     class="sm:leading-[20px] tracking-[0.5px] text-[#2B2B2B] sm:text-[24px] text-lg font-[600] text-center">
                     Connect wallet </h1>
                 <ul class="w-full flex flex-col items-start gap-y-4 mt-4 sm:mt-8 sm:text-xl text-lg">
-                    <li @click="showWalletList = false; showQRCodeSession = true" role="button"
+                    <li @click="metaMaskConnect" role="button"
                         class="cursor-pointer flex items-center w-full border border-[#EEE] rounded-xl p-3 justify-between metamask">
                         Metamask
                         <img src="../assets/images/metamask.svg" alt="">
@@ -82,12 +82,28 @@
 </template>
 <script setup>
 import { useRouter } from "vue-router";
+import SwapCard from '../service/swapCard';
 import { ref } from "vue";
-import Review from "./Review.vue";
 import ScanQR from "./scanQR.vue";
+import { useToast } from '../composables/useToast'
+const { showToast } = useToast()
 const router = useRouter();
 const showWalletList = ref(false);
 const showQRCodeSession = ref(false);
+const metaMaskConnect = async ()=>{
+    try {
+        const signer = await SwapCard.getProviderOrSigner(); // ✅ Use correct name
+        const address = await signer.getAddress();
+        showWalletList.value = false; 
+        showQRCodeSession.value = true
+        sessionStorage.setItem('walletAddress', address)
+        showToast(`Connected!`, 'success')
+      } catch (error) {
+        showToast(error.message, 'error')
+
+      }
+   
+}
 </script>
 <style scoped>
 .mirrored {
