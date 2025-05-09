@@ -2,21 +2,27 @@
 pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/pausable.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 
 /**
  * @title USDC Gift Card Redeemer
  * @notice Allows users to register and claim USDC tokens
  * @dev Uses SafeERC20 for secure transfers, ReentrancyGuard for protection
  */
-contract GiftCardRedeemer is ReentrancyGuard, ownable, pausable{
+contract GiftCardRedeemer is ReentrancyGuard, Ownable, Pausable {
     using SafeERC20 for IERC20;
 
     IERC20 public immutable usdcToken;
     uint256 public constant MIN_AMOUNT = 1 * 10 ** 6; // 1 USDC (6 decimals)
 
+    /*
+    // struct ClaimHistory {
+    //     uint256 timestamp;
+    //     uint256 amount;
+    // }
+    // mapping(address => ClaimHistory[]) public userClaimHistory;  for future upgrades */
     mapping(address => bool) public registeredUsers;
     address[] public allUsers;
     uint256 public totalDistributed;
@@ -26,11 +32,12 @@ contract GiftCardRedeemer is ReentrancyGuard, ownable, pausable{
     event EmergencyWithdraw(address indexed token, uint256 amount);
 
     error AlreadyRegistered();
+    error NotRegistered();
     error ZeroAmount();
     error InsufficientContractBalance();
     error TransferFailed();
 
-    constructor(address _usdcToken) {
+    constructor(address _usdcToken) Ownable(msg.sender) {
         require(_usdcToken != address(0), "Zero token address");
         usdcToken = IERC20(_usdcToken);
     }
@@ -39,7 +46,7 @@ contract GiftCardRedeemer is ReentrancyGuard, ownable, pausable{
      * @notice Register user's wallet address
      * @dev Can only register once per address
      */
-    function register() external whenNotPaused{
+    function register() external whenNotPaused {
         if (registeredUsers[msg.sender]) revert AlreadyRegistered();
 
         registeredUsers[msg.sender] = true;
@@ -53,24 +60,36 @@ contract GiftCardRedeemer is ReentrancyGuard, ownable, pausable{
      * @param amount Amount to claim (in USDC decimals)
      * @dev Non-reentrant, requires registration
      */
-    function claimTokens(uint256 amount) external nonReentrant whenNotPaused{
-        if (!registeredUsers[msg.sender]) revert("Not registered");
-        if (amount < MIN_AMOUNT) revert ZeroAmount();
-        if (usdcToken.balanceOf(address(this)) < amount)
-
-            revert InsufficientContractBalance();
+    function claimTokens(uint256 amount) external nonReentrant whenNotPaused {
+        _validateClaim(amount);
 
         totalDistributed += amount;
 
-        bool success = usdcToken.transfer(msg.sender, amount);
+        bool success = usdcToken.transfer(
+            msg.sender,
+            amount
+        ); /*
+
+
+    //      userClaimHistory[msg.sender].push(ClaimHistory({
+    //     timestamp: block.timestamp,
+    //     amount: amount
+    // }));  for future upgrades
+    
+     userClaimHistory[msg.sender].push(ClaimHistory({
+        timestamp: block.timestamp,
+        amount: amount
+    }));*/
         if (!success) revert TransferFailed();
 
         emit FundsClaimed(msg.sender, amount);
     }
 
-    function _validateClaim(uint amount) private view {
-        if(!registeredUsers[msg.sender]) revert ("Not registered");
-        if (amount <MIN_AMOUNT) revert ZeroAmount();
+    function _validateClaim(uint256 amount) private view {
+        if (!registeredUsers[msg.sender]) revert NotRegistered();
+        if (amount < MIN_AMOUNT) revert ZeroAmount();
+        if (usdcToken.balanceOf(address(this)) < amount)
+            revert InsufficientContractBalance();
     }
 
     /**
@@ -96,7 +115,24 @@ contract GiftCardRedeemer is ReentrancyGuard, ownable, pausable{
     /**
      * @notice Check contract's USDC balance
      */
-    function contractBalance() external view returns (uint256) onlyOwner{
+    function contractBalance() external view onlyOwner returns (uint256) {
         return usdcToken.balanceOf(address(this));
+    }
+
+    // function getUserClaimCount(address user) external view returns (uint256) {
+    //     return userClaimHistory[user].length;
+    // }
+    /**
+     * @notice Pause contract functionality
+     */
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    /**
+     * @notice Unpause contract functionality
+     */
+    function unpause() external onlyOwner {
+        _unpause();
     }
 }
