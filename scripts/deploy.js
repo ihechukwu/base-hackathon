@@ -21,9 +21,14 @@ async function main() {
   console.log(`GiftCardRedeemer deployed at ${giftCardRedeemer.target}`);
 
   // funding the contract
-  const amount = await ethers.parseEther("1", 6); //1000 USDC
-  await mockUSDC.transfer(giftCardRedeemer.target, amount);
-  console.log(`contract funded with ${giftCardRedeemer.contractBalance()}`);
+  const amount = ethers.parseUnits("10000", 6); //10000 USDC
+  const tx = await mockUSDC.transfer(giftCardRedeemer.target, amount);
+  tx.wait();
+  const contractBalance = ethers.formatUnits(
+    await giftCardRedeemer.contractBalance(),
+    6
+  );
+  console.log(`contract funded with ${contractBalance}`);
 }
 
 main()

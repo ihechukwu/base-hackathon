@@ -47,7 +47,9 @@ contract GiftCardRedeemer is ReentrancyGuard, Ownable, Pausable {
      * @dev Can only register once per address
      */
     function register() external whenNotPaused {
-        if (registeredUsers[msg.sender]) revert AlreadyRegistered();
+        if (registeredUsers[msg.sender]) {
+            revert AlreadyRegistered();
+        }
 
         registeredUsers[msg.sender] = true;
         allUsers.push(msg.sender);
