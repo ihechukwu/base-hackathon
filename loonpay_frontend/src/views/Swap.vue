@@ -23,7 +23,8 @@
                                     <p class="sm:leading-[20px] tracking-[0.5px] font-medium text-xs">USD</p>
                                 </div>
                             </div>
-                            <p class="usdtAmount text-2xl sm:text-4xl"><span class="mr-1">$</span>100</p>
+                            <p class="usdtAmount text-2xl sm:text-4xl"><span class="mr-1">$</span>{{ selectedItem.value }}
+                            </p>
                             <p class="exchangeRate">1 USDC ≈ 1 USD</p>
                         </div>
 
@@ -56,7 +57,7 @@
                                     <p class="sm:leading-[20px] tracking-[0.5px] font-medium text-xs">USD</p>
                                 </div>
                             </div>
-                            <p class="usdtAmount text-2xl sm:text-4xl">100</p>
+                            <p class="usdtAmount text-2xl sm:text-4xl">{{ deductedValue }}</p>
                             <p class="exchangeRate">1 USDC ≈ 1 USD</p>
                         </div>
                     </div>
@@ -64,18 +65,33 @@
             </div>
             <div class="w-full flex items-center justify-center">
 
-            <button @click="router.push('/review-transaction')"
-                class="bg-[#0F77FF] hover:bg-blue-600 text-white text-sm font-mono px-4 sm:py-3 py-2 rounded-full flex items-center w-full">
-                <span>Review</span>
-            </button>
+                <button @click="router.push('/review-transaction')"
+                    class="bg-[#0F77FF] hover:bg-blue-600 text-white text-sm font-mono px-4 sm:py-3 py-2 rounded-full flex items-center w-full">
+                    <span>Review</span>
+                </button>
             </div>
         </div>
     </section>
 </template>
 <script setup>
 import { useRouter } from 'vue-router'
-import Navbar from '../components/Navbar.vue';
+import { onMounted, computed } from 'vue'
+import { useMyData } from '../composables/useMyData'
+
+const { selectedItem, loadFromSession } = useMyData();
 const router = useRouter();
+
+const deductedValue = computed(() => {    
+    const value = Number(selectedItem.value.value);
+    if (isNaN(value)) return 0;
+  return Number((value - value * 0.05).toFixed(2));
+});
+
+onMounted(() => {
+    if (!selectedItem.value) {
+        loadFromSession()
+    }
+})
 </script>
 <style scoped>
 .usdtAmount {

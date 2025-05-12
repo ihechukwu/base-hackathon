@@ -12,8 +12,8 @@
                         class="sm:leading-[20px] tracking-[0.5px] font-medium text-[#2B2B2B] sm:text-[16px] text-xs font-mono">
                         Review and Swap
                     </p>
-                    <p class="usdtAmount text-xl sm:text-4xl">100 USDC</p>
-                    <p class="text-[#9B9B9B] font-mono">~$100.00</p>
+                    <p class="usdtAmount text-xl sm:text-4xl">{{deductedValue  }} USDC</p>
+                    <p class="text-[#9B9B9B] font-mono">~{{ selectedItem.value }}</p>
                     <div
                         class="bg-[#f9f9f9] p-4 rounded-xl sm:min-h-[172px] h-fit flex flex-col items-start sm:gap-y-2 gap-y-1 mt-4 w-full">
                         <div class="w-full text-sm font-sans text-gray-600 space-y-2">
@@ -22,7 +22,7 @@
                                 <span class="title">You’re Sending</span>
                                 <span class="flex items-center gap-1">
                                     <!-- <img src="/flags/us.svg" alt="USD" class="w-4 h-4" /> -->
-                                    <span class="body">$100.00</span>
+                                    <span class="body">${{ selectedItem.value }}</span>
                                 </span>
                             </div>
 
@@ -31,26 +31,26 @@
                                 <span class="title">Recipient get’s</span>
                                 <span class="flex items-center gap-1">
                                     <!-- <img src="/tokens/usdc.svg" alt="USDC" class="w-4 h-4" /> -->
-                                    <span class="body">$100.00</span>
+                                    <span class="body">${{ deductedValue }}</span>
                                 </span>
                             </div>
 
                             <!-- Fee -->
                             <div class="flex justify-between w-full">
                                 <span class="title">Fee</span>
-                                <span class="body">1.25 USDC</span>
+                                <span class="body">{{ chargedFees }} USDC</span>
                             </div>
 
                             <!-- Duration -->
                             <div class="flex justify-between w-full">
                                 <span class="title">Duration</span>
-                                <span class="body">~ 2 mins</span>
+                                <span class="body">~ 30 secs</span>
                             </div>
 
                             <!-- Recipient -->
                             <div class="flex justify-between w-full">
                                 <span class="title">Recipient</span>
-                                <span class="body">0xc9f...a4E7</span>
+                                <span class="body truncate max-w-[200px]">{{ connectedToWallet }}</span>
                             </div>
                         </div>
 
@@ -61,7 +61,7 @@
                         class="bg-[#f9f9f9] mt-4 w-full rounded-xl px-4 py-3 text-sm font-mono flex justify-between items-center">
                         <div class="flex flex-col items-start gap-1">
                             <span class="title">Deposit Address</span>
-                            <span class="truncate font-mono body">0x5b4G8cGFe7fD82....</span>
+                            <span class="truncate font-mono body max-w-[80%]">{{ connectedToWallet }}</span>
                         </div>
                         <div class="flex gap-2">
                             <button class="hover:opacity-80">
@@ -100,9 +100,28 @@
 
 import { useRouter } from "vue-router";
 import EstimatedScreen from "../components/EstimatedScreen.vue";
-import { ref, onMounted, onBeforeUnmount } from 'vue';
-const router = useRouter();
+import { ref, onMounted, onBeforeUnmount,computed } from 'vue';
+import { useMyData } from '../composables/useMyData'
 
+const { selectedItem, loadFromSession } = useMyData();
+
+const router = useRouter();
+const deductedValue = computed(() => {    
+    const value = Number(selectedItem.value.value);
+    if (isNaN(value)) return 0;
+  return Number((value - value * 0.05).toFixed(2));
+});
+const chargedFees = computed(() => {    
+    const value = Number(selectedItem.value.value);
+    if (isNaN(value)) return 0;
+  return Number((value * 0.05).toFixed(2));
+});
+
+onMounted(() => {
+    if (!selectedItem.value) {
+        loadFromSession()
+    }
+})
 // State
 const remainingTime = ref(2);
 const statusItems = ref([
@@ -116,10 +135,10 @@ let statusInterval = null;
 const connectedToWallet = ref(sessionStorage.getItem('walletAddress') || false)
 const showEstimatedScreen = ref(false)
 const send = () => {
-    if (!connectedToWallet.value) {
-        showEstimatedScreen.value = true
-        startStatusProgress();
-
+    if (connectedToWallet.value) {
+        // pay user
+        // showEstimatedScreen.value = true
+        // startStatusProgress();
     }
     else {
         router.push('/connect-wallet')
