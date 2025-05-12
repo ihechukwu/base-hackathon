@@ -64,7 +64,7 @@
                             <span class="truncate font-mono body max-w-[80%]">{{ connectedToWallet }}</span>
                         </div>
                         <div class="flex gap-2">
-                            <button class="hover:opacity-80">
+                            <button class="hover:opacity-80" @click="copyToClipboard">
                                 <!-- Copy icon -->
                                 <img src="../assets/images/copy.svg" alt="">
                             </button>
@@ -102,7 +102,8 @@ import { useRouter } from "vue-router";
 import EstimatedScreen from "../components/EstimatedScreen.vue";
 import { ref, onMounted, onBeforeUnmount,computed } from 'vue';
 import { useMyData } from '../composables/useMyData'
-
+import { useToast } from '../composables/useToast'
+const { showToast } = useToast()
 const { selectedItem, loadFromSession } = useMyData();
 
 const router = useRouter();
@@ -159,6 +160,17 @@ const updateNextStatus = () => {
     } else {
         clearInterval(statusInterval);
     }
+};
+const copyToClipboard = () => {
+  if (connectedToWallet?.value) {
+    navigator.clipboard.writeText(connectedToWallet.value)
+      .then(() => {
+        showToast(`copied!`, 'success')
+      })
+      .catch((err) => {
+        console.error("Failed to copy: ", err);
+      });
+  }
 };
 
 const startStatusProgress = () => {
