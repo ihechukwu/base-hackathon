@@ -1,34 +1,33 @@
-const { ethers } = require("hardhat");
+const { ethers, upgrades } = require("hardhat");
 
 async function main() {
   const [deployer] = await ethers.getSigners();
+  console.log("Deploying contracts with account:", deployer.address);
 
-  // deploy mock
+  // 1. Deploy MockUSDC (regular ERC20)
   const MockUSDC = await ethers.getContractFactory("MockUSDC");
   const mockUSDC = await MockUSDC.deploy();
   await mockUSDC.waitForDeployment();
-  console.log(`MockUSDC deployed to ${mockUSDC.target}`);
-  console.log(
-    "Total supply:",
-    ethers.formatUnits(await mockUSDC.totalSupply(), 6),
-    "USDC"
-  );
+  console.log("MockUSDC deployed to:", mockUSDC.target);
 
-  // Deploy GiftCardRedeemer
+  // 2. Deploy GiftCardRedeemer (upgradeable)
   const GiftCardRedeemer = await ethers.getContractFactory("GiftCardRedeemer");
-  const giftCardRedeemer = await GiftCardRedeemer.deploy(mockUSDC.target);
-  await giftCardRedeemer.waitForDeployment();
-  console.log(`GiftCardRedeemer deployed at ${giftCardRedeemer.target}`);
-
-  // funding the contract
-  const amount = ethers.parseUnits("10000", 6); //10000 USDC
-  const tx = await mockUSDC.transfer(giftCardRedeemer.target, amount);
-  tx.wait();
-  const contractBalance = ethers.formatUnits(
-    await giftCardRedeemer.contractBalance(),
-    6
+  const redeemer = await upgrades.deployProxy(
+    GiftCardRedeemer,
+    [mockUSDC.target], // Constructor arguments
+    {
+      initializer: "initialize",
+      kind: "uups", // Explicitly set upgrade pattern
+    }
   );
-  console.log(`contract funded with ${contractBalance}`);
+
+  await redeemer.waitForDeployment();
+  console.log("GiftCardRedeemer proxy deployed to:", redeemer.target);
+
+  const implementationAddress = await upgrades.erc1967.getImplementationAddress(
+    redeemer.target
+  );
+  console.log("Implementation address:", implementationAddress);
 }
 
 main()
