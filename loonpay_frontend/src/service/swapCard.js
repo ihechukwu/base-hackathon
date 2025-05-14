@@ -1,7 +1,6 @@
 import { ethers } from "ethers";
 import { BrowserProvider, Contract } from "ethers";
-
-// import Counter from "@/abi/Counter.json"; // import your ABI properly
+import abi from './abi.json'
 
 let contractInstance = null;
 
@@ -27,7 +26,6 @@ async function getProviderOrSigner() {
   if (!(await hasSigners()) && !(await requestAccess())) {
     throw new Error("User denied account access");
   }
-  console.log(ethers);
 
   const provider = new BrowserProvider(metamask); // ✅ ethers v6 style
   return provider.getSigner();
@@ -41,9 +39,7 @@ async function getContractInstance() {
 
   contractInstance = new ethers.Contract(
     address,
-    {
-      /* pass in abi */
-    },
+    abi,
     signer
   );
   return contractInstance;

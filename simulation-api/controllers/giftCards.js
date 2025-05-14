@@ -5,10 +5,10 @@ const generateCard = async (req, res) => {
   try {
     const {
       count = 1,
-      minValue = 10,
-      maxValue = 100,
+      minValue = 7,
+      maxValue = 11,
       expiresInDays = 30,
-    } = req.body;
+    } = req.body;    
     const giftCards = [];
 
     for (let i = 0; i < count; i++) {

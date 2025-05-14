@@ -12,8 +12,8 @@
                         class="sm:leading-[20px] tracking-[0.5px] font-medium text-[#2B2B2B] sm:text-[16px] text-xs font-mono">
                         Review and Swap
                     </p>
-                    <p class="usdtAmount text-xl sm:text-4xl">{{deductedValue  }} USDC</p>
-                    <p class="text-[#9B9B9B] font-mono">~{{ selectedItem.value }}</p>
+                    <p class="usdtAmount text-xl sm:text-4xl">{{ deductedValue }} USDC</p>
+                    <p class="text-[#9B9B9B] font-mono">~{{ selectedItem?.value }}</p>
                     <div
                         class="bg-[#f9f9f9] p-4 rounded-xl sm:min-h-[172px] h-fit flex flex-col items-start sm:gap-y-2 gap-y-1 mt-4 w-full">
                         <div class="w-full text-sm font-sans text-gray-600 space-y-2">
@@ -22,7 +22,7 @@
                                 <span class="title">You’re Sending</span>
                                 <span class="flex items-center gap-1">
                                     <!-- <img src="/flags/us.svg" alt="USD" class="w-4 h-4" /> -->
-                                    <span class="body">${{ selectedItem.value }}</span>
+                                    <span class="body">${{ selectedItem?.value }}</span>
                                 </span>
                             </div>
 
@@ -50,7 +50,8 @@
                             <!-- Recipient -->
                             <div class="flex justify-between w-full">
                                 <span class="title">Recipient</span>
-                                <span class="body truncate max-w-[200px]">{{ connectedToWallet }}</span>
+                                <span class="body truncate max-w-[200px]">{{ connectedToWallet || 'Not connected'
+                                }}</span>
                             </div>
                         </div>
 
@@ -61,7 +62,8 @@
                         class="bg-[#f9f9f9] mt-4 w-full rounded-xl px-4 py-3 text-sm font-mono flex justify-between items-center">
                         <div class="flex flex-col items-start gap-1">
                             <span class="title">Deposit Address</span>
-                            <span class="truncate font-mono body max-w-[80%]">{{ connectedToWallet }}</span>
+                            <span class="truncate font-mono body max-w-[80%]">{{ connectedToWallet || 'Not Connected'
+                            }}</span>
                         </div>
                         <div class="flex gap-2">
                             <button class="hover:opacity-80" @click="copyToClipboard">
@@ -80,10 +82,11 @@
             </div>
             <div class="w-full flex items-center justify-center">
 
-            <button @click="send()"
-                class="bg-[#0F77FF] hover:bg-blue-600 text-white text-sm font-mono px-4 sm:py-3 py-2 rounded-full flex items-center w-full">
-                <span>Send</span>
-            </button>
+                <button @click="send()"
+                    class="bg-[#0F77FF] hover:bg-blue-600 text-white text-sm font-mono px-4 sm:py-3 py-2 rounded-full flex items-center w-full">
+                    <span v-if="!isLoading">Send</span>
+                    <span v-else>Sending </span>
+                </button>
             </div>
             <div class="w-full items-center flex justify-center">
 
@@ -100,26 +103,27 @@
 
 import { useRouter } from "vue-router";
 import EstimatedScreen from "../components/EstimatedScreen.vue";
-import { ref, onMounted, onBeforeUnmount,computed } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useMyData } from '../composables/useMyData'
 import { useToast } from '../composables/useToast'
 const { showToast } = useToast()
 const { selectedItem, loadFromSession } = useMyData();
-
+import SwapCard from '../service/swapCard'
 const router = useRouter();
-const deductedValue = computed(() => {    
-    const value = Number(selectedItem.value.value);
+const deductedValue = computed(() => {
+    const value = Number(selectedItem?.value?.value);
     if (isNaN(value)) return 0;
-  return Number((value - value * 0.05).toFixed(2));
+    return Number((value - value * 0.05).toFixed(2));
 });
-const chargedFees = computed(() => {    
-    const value = Number(selectedItem.value.value);
+const isLoading = ref(false)
+const chargedFees = computed(() => {
+    const value = Number(selectedItem?.value?.value);
     if (isNaN(value)) return 0;
-  return Number((value * 0.05).toFixed(2));
+    return Number((value * 0.05).toFixed(2));
 });
 
 onMounted(() => {
-    if (!selectedItem.value) {
+    if (!selectedItem?.value) {
         loadFromSession()
     }
 })
@@ -135,11 +139,22 @@ let statusInterval = null;
 
 const connectedToWallet = ref(sessionStorage.getItem('walletAddress') || false)
 const showEstimatedScreen = ref(false)
-const send = () => {
+const send = async () => {
     if (connectedToWallet.value) {
-        // pay user
-        // showEstimatedScreen.value = true
-        // startStatusProgress();
+        try {
+            isLoading.value = true
+
+            const contract = await SwapCard.getContractInstance();
+            const tx = await contract.claimTokens(1000000n)
+            await tx.wait();
+        } catch (error) {
+            console.log(error);
+
+            showToast(error.message, 'error')
+        }
+        finally {
+            isLoading.value = false
+        }
     }
     else {
         router.push('/connect-wallet')
@@ -162,15 +177,15 @@ const updateNextStatus = () => {
     }
 };
 const copyToClipboard = () => {
-  if (connectedToWallet?.value) {
-    navigator.clipboard.writeText(connectedToWallet.value)
-      .then(() => {
-        showToast(`copied!`, 'success')
-      })
-      .catch((err) => {
-        console.error("Failed to copy: ", err);
-      });
-  }
+    if (connectedToWallet?.value) {
+        navigator.clipboard.writeText(connectedToWallet.value)
+            .then(() => {
+                showToast(`copied!`, 'success')
+            })
+            .catch((err) => {
+                console.error("Failed to copy: ", err);
+            });
+    }
 };
 
 const startStatusProgress = () => {
