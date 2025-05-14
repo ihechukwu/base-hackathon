@@ -138,4 +138,14 @@ contract GiftCardRedeemer is
     function unpause() external onlyOwner {
         _unpause();
     }
+
+    // Accept ETH sent to the contract (fallback function)
+    fallback() external payable {
+        // Optional: Add custom logic here
+    }
+
+    // Receive function for direct transfers
+    receive() external payable {
+        // Optional: Add custom logic here
+    }
 }

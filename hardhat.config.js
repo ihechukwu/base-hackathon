@@ -1,5 +1,7 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("@openzeppelin/hardhat-upgrades");
+require("@nomicfoundation/hardhat-ethers");
+
 require("dotenv").config();
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -10,9 +12,14 @@ module.exports = {
     },
     sepolia: {
       url: process.env.SEPOLIA_RPC_URL,
-      account: [process.env.PRIVATE_KEY],
+      accounts: [process.env.PRIVATE_KEY],
       chainId: 11155111,
       blockConfirmations: 8,
+    },
+  },
+  etherscan: {
+    apiKey: {
+      sepolia: process.env.ETHERSCAN_API_KEY,
     },
   },
 };

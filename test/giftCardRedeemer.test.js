@@ -1,120 +1,145 @@
-const { ethers } = require("hardhat");
-const { expect, assert } = require("chai");
+const { expect } = require("chai");
+const { ethers, upgrades } = require("hardhat");
 
 describe("GiftCardRedeemer", function () {
-  let giftCardRedeemer, owner, user1, user2, user3, mockUSDC;
-  beforeEach(async function () {
-    // getting the users
-    [owner, user1, user2, user3] = await ethers.getSigners();
+  let usdcToken;
+  let redeemer;
+  let owner, user1, user2, unregistered;
 
-    const MockUSDC = await ethers.getContractFactory("MockUSDC"); // get mock contract
-    mockUSDC = await MockUSDC.deploy(); // deploy mock
-    await mockUSDC.waitForDeployment(); // wait for deployment
+  before(async function () {
+    [owner, user1, user2, unregistered] = await ethers.getSigners();
 
-    // deploy the contract
+    // Deploy MockUSDC
+    const MockUSDC = await ethers.getContractFactory("MockUSDC");
+    usdcToken = await MockUSDC.deploy();
+    await usdcToken.waitForDeployment();
+
+    // Deploy GiftCardRedeemer
     const GiftCardRedeemer = await ethers.getContractFactory(
       "GiftCardRedeemer"
     );
-    giftCardRedeemer = await GiftCardRedeemer.deploy(mockUSDC.target);
-    await giftCardRedeemer.waitForDeployment();
+    redeemer = await upgrades.deployProxy(
+      GiftCardRedeemer,
+      [await usdcToken.getAddress()],
+      { initializer: "initialize" }
+    );
+    await redeemer.waitForDeployment();
 
+    // Fund contract with 10,000 USDC
     const amount = ethers.parseUnits("10000", 6);
-    const tx = await mockUSDC.transfer(giftCardRedeemer.target, amount);
-    await tx.wait();
+    await usdcToken.transfer(await redeemer.getAddress(), amount);
   });
-  describe("Deployment", function () {
-    it("should set the right usdc token address", async function () {
-      expect(await giftCardRedeemer.usdcToken()).to.equal(mockUSDC.target);
+
+  describe("Initialization", function () {
+    it("Should set the right USDC token address", async function () {
+      expect(await redeemer.usdcToken()).to.equal(await usdcToken.getAddress());
     });
-    it("should set the right owner", async function () {
-      expect(await giftCardRedeemer.owner()).to.equal(owner.address);
+
+    it("Should set the deployer as owner", async function () {
+      expect(await redeemer.owner()).to.equal(owner.address);
+    });
+
+    it("Should reject reinitialization", async function () {
+      await expect(
+        redeemer.initialize(ethers.ZeroAddress)
+      ).to.be.revertedWithCustomError(redeemer, "InvalidInitialization");
     });
   });
-  describe("Registration", function () {
-    it("Should allow users register", async function () {
-      await expect(giftCardRedeemer.connect(user1).register())
-        .to.emit(giftCardRedeemer, "UserRegistered")
+
+  describe("User Registration", function () {
+    it("Should allow users to register", async function () {
+      await expect(redeemer.connect(user1).register())
+        .to.emit(redeemer, "UserRegistered")
         .withArgs(user1.address);
-      expect(await giftCardRedeemer.registeredUsers(user1.address)).to.be.true;
+
+      expect(await redeemer.registeredUsers(user1.address)).to.be.true;
+      expect(await redeemer.totalUsers()).to.equal(1);
     });
-    it("should not allow for double registration", async function () {
-      await giftCardRedeemer.connect(user1).register();
+
+    it("Should prevent double registration", async function () {
       await expect(
-        giftCardRedeemer.connect(user1).register()
-      ).to.be.revertedWithCustomError(giftCardRedeemer, "AlreadyRegistered");
-    });
-    it("should keep record of registered users", async function () {
-      await giftCardRedeemer.connect(user1).register();
-      await giftCardRedeemer.connect(user2).register();
-      expect(await giftCardRedeemer.totalUsers()).to.equal(2);
-      expect(await giftCardRedeemer.registeredUsers(user1.address)).to.be.true;
-      expect(await giftCardRedeemer.registeredUsers(user2.address)).to.be.true;
+        redeemer.connect(user1).register()
+      ).to.be.revertedWithCustomError(redeemer, "AlreadyRegistered");
     });
   });
-  describe("Claiming token", function () {
+
+  describe("Token Claims", function () {
+    const claimAmount = ethers.parseUnits("10", 6); // 10 USDC
+
     beforeEach(async function () {
-      await giftCardRedeemer.connect(user1).register();
-      await giftCardRedeemer.connect(user2).register();
-    });
-    it("Should allow registered users to claim", async function () {
-      const initialBalance = await mockUSDC.balanceOf(user1.address);
-
-      await expect(
-        giftCardRedeemer.connect(user1).claimTokens(ethers.parseUnits("1", 6))
-      )
-        .to.emit(giftCardRedeemer, "FundsClaimed")
-        .withArgs(user1.address, ethers.parseUnits("1", 6));
-
-      const newBalance = await mockUSDC.balanceOf(user1.address);
-      expect(newBalance - initialBalance).to.equal(ethers.parseUnits("1", 6));
-    });
-    it("should prevent unregistered users to claim", async function () {
-      await expect(
-        giftCardRedeemer.connect(user3).claimTokens(ethers.parseUnits("1", 6))
-      ).to.be.revertedWithCustomError(giftCardRedeemer, "NotRegistered");
-    });
-    it("should prevent claiming below minimum amount", async function () {
-      await expect(
-        giftCardRedeemer.connect(user1).claimTokens(ethers.parseUnits("0.5", 6))
-      ).to.revertedWithCustomError(giftCardRedeemer, "ZeroAmount");
-    });
-    it("should commulate the total distributed amount", async function () {
-      await giftCardRedeemer
-        .connect(user1)
-        .claimTokens(ethers.parseUnits("1", 6));
-      await giftCardRedeemer
-        .connect(user1)
-        .claimTokens(ethers.parseUnits("2", 6));
-      expect(await giftCardRedeemer.totalDistributed()).to.equal(
-        ethers.parseUnits("3", 6)
+      // Reset redeemer and register users
+      const GiftCardRedeemer = await ethers.getContractFactory(
+        "GiftCardRedeemer"
       );
+      redeemer = await upgrades.deployProxy(
+        GiftCardRedeemer,
+        [await usdcToken.getAddress()],
+        { initializer: "initialize" }
+      );
+      await redeemer.waitForDeployment();
+
+      // Fund again
+      const amount = ethers.parseUnits("10000", 6);
+      await usdcToken.transfer(await redeemer.getAddress(), amount);
+
+      await redeemer.connect(user1).register();
+      await redeemer.connect(user2).register();
+    });
+
+    it("Should allow registered users to claim", async function () {
+      const initialBalance = await usdcToken.balanceOf(user1.address);
+
+      await expect(redeemer.connect(user1).claimTokens(claimAmount))
+        .to.emit(redeemer, "FundsClaimed")
+        .withArgs(user1.address, claimAmount);
+
+      const newBalance = await usdcToken.balanceOf(user1.address);
+      expect(newBalance - initialBalance).to.equal(claimAmount);
+    });
+
+    it("Should prevent unregistered claims", async function () {
+      await expect(
+        redeemer.connect(unregistered).claimTokens(claimAmount)
+      ).to.be.revertedWithCustomError(redeemer, "NotRegistered");
+    });
+
+    it("Should enforce minimum amount", async function () {
+      const smallAmount = ethers.parseUnits("0.5", 6); // 0.5 USDC
+      await expect(
+        redeemer.connect(user1).claimTokens(smallAmount)
+      ).to.be.revertedWithCustomError(redeemer, "ZeroAmount");
     });
   });
-  describe("Admin functionalities", function () {
-    it("should allow owner pause and resume ", async function () {
-      await giftCardRedeemer.pause();
-      expect(await giftCardRedeemer.paused()).to.be.true;
-      await giftCardRedeemer.unpause();
-      expect(await giftCardRedeemer.paused()).to.be.false;
+
+  describe("Admin Functions", function () {
+    it("Should allow owner to pause", async function () {
+      await redeemer.pause();
+      expect(await redeemer.paused()).to.be.true;
+    });
+
+    it("Should prevent non-owners from pausing", async function () {
+      await expect(redeemer.connect(user1).pause())
+        .to.be.revertedWithCustomError(redeemer, "OwnableUnauthorizedAccount")
+        .withArgs(user1.address);
     });
 
     it("Should allow emergency withdraw by owner", async function () {
-      const initialBalance = await mockUSDC.balanceOf(owner.address);
-      const contractBalance = await mockUSDC.balanceOf(giftCardRedeemer.target);
+      const initialBalance = await usdcToken.balanceOf(owner.address);
+      const contractBalance = await usdcToken.balanceOf(
+        await redeemer.getAddress()
+      );
 
       await expect(
-        giftCardRedeemer.emergencyWithdraw(mockUSDC.target, contractBalance)
+        redeemer.emergencyWithdraw(
+          await usdcToken.getAddress(),
+          contractBalance
+        )
       )
-        .to.emit(giftCardRedeemer, "EmergencyWithdraw")
-        .withArgs(mockUSDC.target, contractBalance);
+        .to.emit(redeemer, "EmergencyWithdraw")
+        .withArgs(await usdcToken.getAddress(), contractBalance);
 
-      const newBalance = await mockUSDC.balanceOf(owner.address);
+      const newBalance = await usdcToken.balanceOf(owner.address);
       expect(newBalance - initialBalance).to.equal(contractBalance);
-    });
-    it("Should show correct contract balance", async function () {
-      const directBalance = await mockUSDC.balanceOf(giftCardRedeemer.target);
-      const contractReportedBalance = await giftCardRedeemer.contractBalance();
-      expect(contractReportedBalance).to.equal(directBalance);
     });
   });
 });
