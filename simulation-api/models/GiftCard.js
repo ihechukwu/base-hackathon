@@ -1,4 +1,3 @@
-const { boolean } = require("hardhat/internal/core/params/argumentTypes");
 const mongoose = require("mongoose");
 
 const GiftCardSchema = new mongoose.Schema({
