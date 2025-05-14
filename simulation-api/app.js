@@ -5,9 +5,13 @@ const giftCards = require("./routes/giftCard");
 const cors = require('cors');
 
 app.use(cors({
-  origin: 'http://localhost:5173', 
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+  origin: [
+    'http://localhost:5173',
+    'https://base-hackathon-tau.vercel.app'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
+
 app.use(express.json());
 
 app.use("/api", giftCards);
