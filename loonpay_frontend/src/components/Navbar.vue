@@ -62,7 +62,7 @@
               Disabled feature
             </div>
           </div>
-          <button :disabled="accountAddress" class="text-sm text-[#9B9B9B] hover:text-[#368DFF] font-medium flex items-center space-x-1">
+          <button :disabled="accountAddress" @click="connectToWallet()" class="text-sm text-[#9B9B9B] hover:text-[#368DFF] font-medium flex items-center space-x-1">
             <span v-if="!accountAddress">Connect</span>
             <span v-else>Connected</span>
             <img src="../assets/images/connectWalletAsh.svg" alt="wallet" class="w-4 h-4" />
