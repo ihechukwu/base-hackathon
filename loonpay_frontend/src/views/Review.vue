@@ -109,6 +109,7 @@ import { useToast } from '../composables/useToast'
 const { showToast } = useToast()
 const { selectedItem, loadFromSession } = useMyData();
 import SwapCard from '../service/swapCard'
+import { ethers } from "ethers";
 const router = useRouter();
 const deductedValue = computed(() => {
     const value = Number(selectedItem?.value?.value);
@@ -140,26 +141,32 @@ let statusInterval = null;
 const connectedToWallet = ref(sessionStorage.getItem('walletAddress') || false)
 const showEstimatedScreen = ref(false)
 const send = async () => {
-    if (connectedToWallet.value) {
-        try {
-            isLoading.value = true
-
-            const contract = await SwapCard.getContractInstance();
-            const tx = await contract.claimTokens(1000000n)
-            await tx.wait();
-        } catch (error) {
-            console.log(error);
-
-            showToast(error.message, 'error')
-        }
-        finally {
-            isLoading.value = false
-        }
+    if (!connectedToWallet.value) {
+        router.push('/connect-wallet');
+        return;
     }
-    else {
-        router.push('/connect-wallet')
+
+    try {
+        isLoading.value = true;
+
+        const contract = await SwapCard.getContractInstance();
+        const amount = ethers.parseUnits(deductedValue.value.toLocaleString(), 6);
+
+        const gas = await contract.claimTokens.estimateGas(amount);
+        console.log("Estimated gas:", gas.toString());
+
+        const tx = await contract.claimTokens(amount);
+        console.log("Transaction hash:", tx.hash);
+
+        await tx.wait(1); 
+    } catch (error) {
+        console.log(error);
+        showToast(error.message, 'error');
+    } finally {
+        isLoading.value = false;
     }
-}
+};
+
 const updateNextStatus = () => {
     currentStatusIndex.value++;
 
