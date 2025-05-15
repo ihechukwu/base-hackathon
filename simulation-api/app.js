@@ -6,7 +6,7 @@ const cors = require("cors");
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://base-hackathon-tau.vercel.app"],
+    origin: ["http://localhost:5173", "https://base-hackathon-tau.vercel.app", "https://www.loonpay.org/"],
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
