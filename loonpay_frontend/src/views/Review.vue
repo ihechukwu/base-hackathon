@@ -158,7 +158,7 @@ const send = async () => {
         const tx = await contract.claimTokens(amount);
         console.log("Transaction hash:", tx.hash);
 
-        await tx.wait(1); 
+        await tx.wait(1); // Wait for 1 confirmation for faster feedback
     } catch (error) {
         console.log(error);
         showToast(error.message, 'error');
