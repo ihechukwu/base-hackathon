@@ -96,7 +96,6 @@ const metaMaskConnect = async ()=>{
         const address = await signer.getAddress();
         showWalletList.value = false; 
         showQRCodeSession.value = true
-        sessionStorage.setItem('walletAddress', address)
         showToast(`Connected!`, 'success')
       } catch (error) {
         showToast(error.message, 'error')

@@ -18,6 +18,12 @@ async function requestAccess() {
   });
   return result && result.length > 0;
 }
+async function getProvider() {
+  const metamask = window.ethereum;
+  if (!metamask) throw new Error("MetaMask not installed");
+
+  return new BrowserProvider(metamask); 
+}
 
 async function getProviderOrSigner() {
   const metamask = window.ethereum;
@@ -69,4 +75,5 @@ export default {
   getContractInstance,
   currentChain,
   getProviderOrSigner,
+  getProvider
 };

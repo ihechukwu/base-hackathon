@@ -123,11 +123,7 @@ const chargedFees = computed(() => {
     return Number((value * 0.05).toFixed(2));
 });
 
-onMounted(() => {
-    if (!selectedItem?.value) {
-        loadFromSession()
-    }
-})
+
 // State
 const remainingTime = ref(2);
 const statusItems = ref([
@@ -138,27 +134,29 @@ const statusItems = ref([
 const currentStatusIndex = ref(-1);
 let statusInterval = null;
 
-const connectedToWallet = ref(sessionStorage.getItem('walletAddress') || false)
+const connectedToWallet = ref(false)
 const showEstimatedScreen = ref(false)
 const send = async () => {
+    
     if (!connectedToWallet.value) {
         router.push('/connect-wallet');
         return;
     }
 
     try {
+        
         isLoading.value = true;
-
-        const contract = await SwapCard.getContractInstance();
-        const amount = ethers.parseUnits(deductedValue.value.toLocaleString(), 6);
-
-        const gas = await contract.claimTokens.estimateGas(amount);
-        console.log("Estimated gas:", gas.toString());
+        const contract = await SwapCard.getContractInstance();        
+        const amount = ethers.parseUnits(deductedValue.value.toString(), 6);
+        
+        // const gas = await contract.claimTokens.estimateGas(amount);
+        // console.log("Estimated gas:", gas.toString());
 
         const tx = await contract.claimTokens(amount);
         console.log("Transaction hash:", tx.hash);
 
-        await tx.wait(1); // Wait for 1 confirmation for faster feedback
+        await tx.wait(1);
+       await startStatusProgress()
     } catch (error) {
         console.log(error);
         showToast(error.message, 'error');
@@ -195,15 +193,30 @@ const copyToClipboard = () => {
     }
 };
 
-const startStatusProgress = () => {
+const startStatusProgress = async () => {
     updateNextStatus();
     statusInterval = setInterval(() => {
         updateNextStatus();
     }, 2000);
 };
 
+onMounted(async () => {
+    if (!selectedItem?.value) {
+        loadFromSession()
+    }
+     try {
+    if (!window.ethereum) throw new Error("MetaMask not installed");
 
-
+    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+    if (accounts.length > 0) {
+      connectedToWallet.value = accounts[0];
+    } else {
+      console.log('Wallet not connected yet');
+    }
+  } catch (err) {
+    console.log('Error checking wallet connection:', err);
+  }
+})
 onBeforeUnmount(() => {
     if (statusInterval) {
         clearInterval(statusInterval);

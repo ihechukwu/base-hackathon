@@ -76,30 +76,49 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router';
 import SwapCard from '../service/swapCard';
 import { useToast } from '../composables/useToast'
+
 const { showToast } = useToast()
 const router = useRouter();
 const route = useRoute();
 const mobileMenuOpen = ref(false);
-const accountAddress = ref(sessionStorage.getItem('walletAddress') || null)
+const accountAddress = ref(null)
+
 const goBack = () => {
   if (route.path === '/review-transaction') router.push('/')
   else router.back()
 };
-const connectToWallet = async ()=>{
-    try {
-        const signer = await SwapCard.getProviderOrSigner(); 
-        const address = await signer.getAddress();
-        accountAddress.value = address;
-        sessionStorage.setItem('walletAddress', address)
-        showToast(`Connected!`, 'success')
-      } catch (error) {
-        showToast(error.message, 'error')      }
+
+const connectToWallet = async () => {
+  try {
+    const signer = await SwapCard.getProviderOrSigner()
+    const address = await signer.getAddress()
+    accountAddress.value = address
+    showToast(`Connected!`, 'success')
+  } catch (error) {
+    showToast(error.message, 'error')
+  }
 }
+
+onMounted(async () => {
+  try {
+    if (!window.ethereum) throw new Error("MetaMask not installed");
+
+    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+    if (accounts.length > 0) {
+      accountAddress.value = accounts[0];
+    } else {
+      console.log('Wallet not connected yet');
+    }
+  } catch (err) {
+    console.log('Error checking wallet connection:', err);
+  }
+});
 </script>
+
 
 <style scoped>
 .mobile-menu-enter-active,

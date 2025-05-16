@@ -29,25 +29,44 @@
     </section>
 </template>
 <script setup>
-import { ref } from 'vue';
-import {useRouter} from 'vue-router'
-import { useToast } from '../composables/useToast'
-import SwapCard from '../service/swapCard'
-const { showToast } = useToast()
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useToast } from '../composables/useToast';
+import SwapCard from '../service/swapCard';
+
+const { showToast } = useToast();
 const router = useRouter();
-const accountAddress = ref(sessionStorage.getItem('walletAddress') || null)
-const connectToWallet = async ()=>{
-    try {
-        const signer = await SwapCard.getProviderOrSigner(); // ✅ Use correct name
-        const address = await signer.getAddress();
-        accountAddress.value = address;
-        sessionStorage.setItem('walletAddress', address)
-        showToast(`Connected!`, 'success')
-    } catch (error) {
-        showToast(error.message, 'error')
-      }
-}
+
+const accountAddress = ref(null);
+
+const connectToWallet = async () => {
+  try {
+    const signer = await SwapCard.getProviderOrSigner();
+    const address = await signer.getAddress();
+    accountAddress.value = address;
+    showToast(`Connected!`, 'success');
+  } catch (error) {
+    showToast(error.message, 'error');
+  }
+};
+
+onMounted(async () => {
+  try {
+    if (!window.ethereum) throw new Error("MetaMask not installed");
+
+    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+    if (accounts.length > 0) {
+      accountAddress.value = accounts[0];
+    } else {
+      console.log('Wallet not connected yet');
+    }
+  } catch (err) {
+    console.log('Error checking wallet connection:', err);
+  }
+});
+
 </script>
+
 <style scoped>
 h1 {
     color: linear-gradient(91.03deg, #6943FF -9.16%, #193DB1 37.33%, #0B1A4B 109.11%);
