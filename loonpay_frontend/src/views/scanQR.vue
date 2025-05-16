@@ -55,6 +55,8 @@ import Navbar from '../components/Navbar.vue';
 const agree = ref(false)
 import SwapCard from '../service/swapCard'
 import { ethers } from "ethers";
+import { useToast } from '../composables/useToast'
+const { showToast } = useToast()
 // State
 const remainingTime = ref(2);
 const statusItems = ref([
@@ -86,7 +88,7 @@ const updateNextStatus = () => {
     }
 };
 
-const startStatusProgress = () => {
+const startStatusProgress = async () => {
     showEstimatedScreen.value = true;
     updateNextStatus();
     statusInterval = setInterval(() => {
@@ -95,28 +97,27 @@ const startStatusProgress = () => {
 };
 
 const send = async () => {
-    showEstimatedScreen.value = true
     try {
-        startStatusProgress()
+        const money = sessionStorage.getItem('amount')
         const contract = await SwapCard.getContractInstance();
-        const amount = ethers.parseUnits("20", 6); //add amount
-
-        // const gas = await contract.claimTokens.estimateGas(amount);
-        // console.log("Estimated gas:", gas.toString());
+        const amount = ethers.parseUnits(money.toString(), 6);
 
         const tx = await contract.claimTokens(amount);
         console.log("Transaction hash:", tx.hash);
 
-        await tx.wait(1); // Wait for 1 confirmation for faster feedback
+        await tx.wait(1);
+        await startStatusProgress()
     } catch (error) {
         console.log(error);
         showToast(error.message, 'error');
     }
+  
 };
 
 onBeforeUnmount(() => {
     if (statusInterval) {
         clearInterval(statusInterval);
+        sessionStorage.removeItem('amount')
     }
 });
 

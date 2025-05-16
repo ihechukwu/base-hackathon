@@ -51,7 +51,7 @@
                             <div class="flex justify-between w-full">
                                 <span class="title">Recipient</span>
                                 <span class="body truncate max-w-[200px]">{{ connectedToWallet || 'Not connected'
-                                }}</span>
+                                    }}</span>
                             </div>
                         </div>
 
@@ -63,7 +63,7 @@
                         <div class="flex flex-col items-start gap-1">
                             <span class="title">Deposit Address</span>
                             <span class="truncate font-mono body max-w-[80%]">{{ connectedToWallet || 'Not Connected'
-                            }}</span>
+                                }}</span>
                         </div>
                         <div class="flex gap-2">
                             <button class="hover:opacity-80" @click="copyToClipboard">
@@ -137,26 +137,22 @@ let statusInterval = null;
 const connectedToWallet = ref(false)
 const showEstimatedScreen = ref(false)
 const send = async () => {
-    
+
     if (!connectedToWallet.value) {
+        sessionStorage.setItem('amount',deductedValue.value )
         router.push('/connect-wallet');
         return;
     }
 
     try {
-        
-        isLoading.value = true;
-        const contract = await SwapCard.getContractInstance();        
-        const amount = ethers.parseUnits(deductedValue.value.toString(), 6);
-        
-        // const gas = await contract.claimTokens.estimateGas(amount);
-        // console.log("Estimated gas:", gas.toString());
 
+        isLoading.value = true;
+        const contract = await SwapCard.getContractInstance();
+        const amount = ethers.parseUnits(deductedValue.value.toString(), 6);
         const tx = await contract.claimTokens(amount);
         console.log("Transaction hash:", tx.hash);
-
         await tx.wait(1);
-       await startStatusProgress()
+        await startStatusProgress()
     } catch (error) {
         console.log(error);
         showToast(error.message, 'error');
@@ -204,18 +200,18 @@ onMounted(async () => {
     if (!selectedItem?.value) {
         loadFromSession()
     }
-     try {
-    if (!window.ethereum) throw new Error("MetaMask not installed");
+    try {
+        if (!window.ethereum) throw new Error("MetaMask not installed");
 
-    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-    if (accounts.length > 0) {
-      connectedToWallet.value = accounts[0];
-    } else {
-      console.log('Wallet not connected yet');
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts.length > 0) {
+            connectedToWallet.value = accounts[0];
+        } else {
+            console.log('Wallet not connected yet');
+        }
+    } catch (err) {
+        console.log('Error checking wallet connection:', err);
     }
-  } catch (err) {
-    console.log('Error checking wallet connection:', err);
-  }
 })
 onBeforeUnmount(() => {
     if (statusInterval) {
