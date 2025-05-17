@@ -23,7 +23,7 @@
                                     <p class="sm:leading-[20px] tracking-[0.5px] font-medium text-xs">USD</p>
                                 </div>
                             </div>
-                            <p class="usdtAmount text-2xl sm:text-4xl"><span class="mr-1">$</span>{{ selectedItem.value }}
+                            <p class="usdtAmount text-2xl sm:text-4xl"><span class="mr-1">$</span>{{ selectedItem?.value }}
                             </p>
                             <p class="exchangeRate">1 USDC ≈ 1 USD</p>
                         </div>
@@ -82,13 +82,13 @@ const { selectedItem, loadFromSession } = useMyData();
 const router = useRouter();
 
 const deductedValue = computed(() => {    
-    const value = Number(selectedItem.value.value);
+    const value = Number(selectedItem?.value?.value);
     if (isNaN(value)) return 0;
   return Number((value - value * 0.05).toFixed(2));
 });
 
 onMounted(() => {
-    if (!selectedItem.value) {
+    if (!selectedItem?.value) {
         loadFromSession()
     }
 })
