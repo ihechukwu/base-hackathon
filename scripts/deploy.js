@@ -1,35 +1,46 @@
+// scripts/deploy.js
+const { networkConfig } = require("../helper-hardhat-config");
 const { ethers, upgrades } = require("hardhat");
 
+const chainId = network.config.chainId;
+
+// Base Mainnet USDC address
+// const BASE_USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+
 async function main() {
+  if (!networkConfig[chainId]) {
+    throw new Error(`Network with chain ID ${chainId} is not supported`);
+  }
+
+  const USDC_ADDRESS = networkConfig[chainId].USDC_ADDRESS;
   const [deployer] = await ethers.getSigners();
-  // console.log("Deploying contracts with account:", deployer.address);
+  console.log("Deploying with account:", deployer.address);
 
-  // Deploy MockUSDC
-  const MockUSDC = await ethers.getContractFactory("MockUSDC");
-  const mockUSDC = await MockUSDC.deploy();
-  await mockUSDC.waitForDeployment(); // Ensure deployment is complete
-  const usdcAddress = await mockUSDC.getAddress();
-  console.log("MockUSDC deployed to:", usdcAddress);
-
-  // Deploy GiftCardRedeemer as UUPS proxy
+  // 1. Deploy GiftCardRedeemer (Upgradeable)
   const GiftCardRedeemer = await ethers.getContractFactory("GiftCardRedeemer");
-  const redeemer = await upgrades.deployProxy(GiftCardRedeemer, [usdcAddress], {
-    initializer: "initialize",
-  });
-  await redeemer.waitForDeployment(); // Ensure deployment is complete
-  const redeemerAddress = redeemer.target;
-  console.log("GiftCardRedeemer proxy deployed to:", redeemerAddress);
-
-  // Get Implementation Address
-  const implAddress = await upgrades.erc1967.getImplementationAddress(
-    redeemerAddress
+  const redeemer = await upgrades.deployProxy(
+    GiftCardRedeemer,
+    [USDC_ADDRESS], // Use Base's official USDC
+    {
+      initializer: "initialize",
+      kind: "uups",
+      gasPrice: ethers.parseUnits("0.001", "gwei"), // Base gas price
+    }
   );
-  console.log("Implementation address:", implAddress);
 
-  // Fund the redeemer contract with USDC
-  const amount = ethers.parseUnits("10000", 6); // 10,000 USDC
-  await mockUSDC.transfer(redeemerAddress, amount);
-  console.log("Funded GiftCardRedeemer with 10,000 USDC");
+  await redeemer.waitForDeployment();
+
+  console.log("Proxy deployed to:", await redeemer.getAddress());
+  console.log(
+    "Implementation address:",
+    await upgrades.erc1967.getImplementationAddress(await redeemer.getAddress())
+  );
+
+  // 2. Verify contract (run separately after deployment)
+  console.log("\nRun this to verify:");
+  console.log(
+    `npx hardhat verify --network base ${await redeemer.getAddress()} ${BASE_USDC}`
+  );
 }
 
 main().catch((error) => {
