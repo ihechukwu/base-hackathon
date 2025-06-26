@@ -15,12 +15,12 @@ async function main() {
   const USDC_ADDRESS = networkConfig[chainId].USDC_ADDRESS;
   const [deployer] = await ethers.getSigners();
   console.log("Deploying with account:", deployer.address);
-
+  console.log(USDC_ADDRESS);
   // 1. Deploy GiftCardRedeemer (Upgradeable)
   const GiftCardRedeemer = await ethers.getContractFactory("GiftCardRedeemer");
   const redeemer = await upgrades.deployProxy(
     GiftCardRedeemer,
-    [USDC_ADDRESS], // Use Base's official USDC
+    [USDC_ADDRESS],
     {
       initializer: "initialize",
       kind: "uups",
@@ -39,7 +39,7 @@ async function main() {
   // 2. Verify contract (run separately after deployment)
   console.log("\nRun this to verify:");
   console.log(
-    `npx hardhat verify --network base ${await redeemer.getAddress()} ${BASE_USDC}`
+    `npx hardhat verify --network base ${await redeemer.getAddress()} ${USDC_ADDRESS}`
   );
 }
 
